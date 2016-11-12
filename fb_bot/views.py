@@ -69,7 +69,7 @@ def post_list(fbid,articles):
                 "type":"template",
                 "payload":{
                     "template_type":"list",
-                    "elements":  [{"buttons": [{"messenger_extensions": True, "title": "Read More", "url": "https://developer.manoramaonline.com/api/editions/en/articles/42b6210a8866f06ede8eb8f074f93068", "webview_height_ratio": "tall", "type": "web_url", "fallback_url": "https://developer.manoramaonline.com/api/editions/en/articles/42b6210a8866f06ede8eb8f074f93068"}], "image_url": "http://english.manoramaonline.com/content/dam/mm/en/entertainment/review/images/2016/Nov/11/achcham-yenbadhu-madamaiyada-review.jpg.image.160.84.png", "default_action": {"url": "https://developer.manoramaonline.com/api/editions/en/articles/42b6210a8866f06ede8eb8f074f93068", "webview_height_ratio": "tall", "messenger_extensions": True, "type": "web_url", "fallback_url": "https://developer.manoramaonline.com/api/editions/en/articles/42b6210a8866f06ede8eb8f074f93068"}, "subtitle": " hrdtrc", "title": "Achcham Yenbadhu Madamaiyada (AYM): audience review & live updates"},]
+                    "elements": articles
                 }
             }
         }
@@ -124,7 +124,9 @@ def fetch_and_store_sections():
 
 def get_fb_array(articles):
     res = []
+    count = 0
     for i in articles:
+        count +=1
         cur = {
         'title': i['title'],
         'image_url': i['thumbnail'],
@@ -149,7 +151,9 @@ def get_fb_array(articles):
                 ] 
             }     
         res.append(cur)
-    print(res)
+        if(count == 4):
+            break
+    #print(res)
     return res          
 
 def get_matching_section(a):
@@ -222,9 +226,13 @@ class FbBotView(generic.View):
                         if(is_section != "none" ):
                             sections = Section.objects.filter(parent=is_section)
                             articles = []
+                            count = 0
                             for i in sections:
                                 sec = i.code
                                 articles += get_articles(sec)
+                                count += 1
+                                if(count >= 4):
+                                    break
 
                             print(articles)
                             post_list(fbid,get_fb_array(articles))
